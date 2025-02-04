@@ -10,14 +10,16 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using Newtonsoft.Json;
-
+using System.IO;
+using static MesWebAPITest.JsonData;
+using Newtonsoft.Json.Linq;
 
 namespace MesWebAPITest
 {
     public partial class Form1 : Form
     {
         private HttpListener listener;
-
+        private CheckPlaCode_Post checkPlaCode_Post;
 
         public Form1()
         {
@@ -57,39 +59,75 @@ namespace MesWebAPITest
         {
             if (listener == null || !listener.IsListening)
                 return;
+
             try
             {
                 var context = listener.EndGetContext(result);
                 listener.BeginGetContext(OnRequestReceived, null);
                 var request = context.Request;
 
+                // **輸出請求基本資訊**
+                Console.WriteLine($"[請求] {request.HttpMethod} {request.Url}");
+
+                // **讀取 Authorization 標頭**
                 string authHeader = request.Headers["Authorization"];
-                Debug.WriteLine(authHeader);
+                Console.WriteLine($"[Authorization] {authHeader}");
 
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                 {
-                    RespondWithJson(context, 401, "授權失敗：缺少或無效了Token");
+                    RespondWithJson(context, 401, "授權失敗：缺少或無效的 Token");
                     return;
                 }
 
                 string token = authHeader.Substring("Bearer ".Length).Trim();
 
-                // 验证 Token
+                // **驗證 Token**
                 if (!ValidateToken(token))
                 {
                     RespondWithJson(context, 401, "授權失敗：Token 無效或已過期");
                     return;
                 }
-                else
+
+                // **如果是 GET 或 沒有 Body 的 POST，直接回傳成功**
+                if (request.HttpMethod == "GET" || !request.HasEntityBody)
                 {
-                    //Console.WriteLine()
                     RespondWithJson(context, 200, "連線成功");
                     return;
                 }
 
+                // **處理 POST 且有 Body 的請求**
+                if (request.HttpMethod == "POST" && request.HasEntityBody)
+                {
+                    using (var reader = new StreamReader(request.InputStream, request.ContentEncoding))
+                    {
+                        string body = reader.ReadToEnd(); // 讀取請求內容
+                        Console.WriteLine($"[正文] {body}");
+
+                        // **解析 JSON**
+                        try
+                        {
+                            var receivedData = JsonConvert.DeserializeObject<JObject>(body);
+                            Console.WriteLine($"[解析後]\n {receivedData}");
+
+                            // 這裡可以進一步處理 `receivedData`
+
+                            RespondWithJson(context, 200, "數據接收成功");
+                        }
+                        catch (Exception jsonEx)
+                        {
+                            Console.WriteLine($"[JSON 解析錯誤] {jsonEx}");
+                            RespondWithJson(context, 400, "JSON 格式錯誤");
+                        }
+                    }
+                }
+                else
+                {
+                    RespondWithJson(context, 405, "只支援 GET / POST 請求");
+                }
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[錯誤] {ex}");
                 MessageBox.Show(ex.ToString());
             }
         }
@@ -122,11 +160,11 @@ namespace MesWebAPITest
             // 直接比對收到的 Token
             if (token == validToken)
             {
-                Debug.WriteLine("Token 驗證成功");
+                Console.WriteLine("Token 驗證成功");
                 return true;
             }
 
-            Debug.WriteLine("Token 驗證失敗");
+            Console.WriteLine("Token 驗證失敗");
             return false;
         }
     }

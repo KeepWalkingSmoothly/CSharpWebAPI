@@ -1,0 +1,13 @@
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\bin\Debug\MesWebAPITest.exe.config
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\bin\Debug\MesWebAPITest.exe
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\bin\Debug\MesWebAPITest.pdb
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\bin\Debug\Newtonsoft.Json.dll
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\bin\Debug\Newtonsoft.Json.xml
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\obj\Debug\MesWebAPITest.csproj.AssemblyReference.cache
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\obj\Debug\MesWebAPITest.Form1.resources
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\obj\Debug\MesWebAPITest.Properties.Resources.resources
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\obj\Debug\MesWebAPITest.csproj.GenerateResource.cache
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\obj\Debug\MesWebAPITest.csproj.CoreCompileInputs.cache
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\obj\Debug\MesWebAP.3195438B.Up2Date
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\obj\Debug\MesWebAPITest.exe
+D:\冠宏\電控\MES印刷接口\MesWebAPI\MesWebAPITest\MesWebAPITest\obj\Debug\MesWebAPITest.pdb

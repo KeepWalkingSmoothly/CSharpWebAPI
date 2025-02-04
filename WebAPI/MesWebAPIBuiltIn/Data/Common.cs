@@ -33,6 +33,9 @@ namespace MesWebAPIBuiltIn
             public int W410;            //PLC通知 1=通知 參數
             public int W500;            //PC回覆  1=OK 2=NG
             public string W510_54B;     //Message NG訊息
+
+            public int W400_old;
+            public int W410_old;
         }
     }
 }

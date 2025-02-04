@@ -33,7 +33,7 @@ namespace MesWebAPIBuiltIn
         private bool HOST_Connect_Start = false;
         private bool HOST_Connect_Auto = false;
         private string url;
-        private string authorization = "自行輸入";
+        private string authorization = "09a2815ab6814ea3a87166d2bf866085";
         private CheckPlaCode_Post checkPlaCode_Post;
         private SendWipOut_Post sendWipOut_Post;
         private bool host_tf = false; //判斷連線是否成功
@@ -67,6 +67,11 @@ namespace MesWebAPIBuiltIn
                 if (HOST_Connect_Auto)
                 {
                     HOST_Connect_Start = true;
+                    url = URL.Text;
+                    URL.Enabled = false;
+                    HOST_Connect_Label.Text = "连线中";
+                    HOST_Connect_Label.BackColor = Color.Yellow;
+                    host_Connect_Count = 0;
                     HOST_Connect.Start();
                 }
                 else
@@ -76,6 +81,9 @@ namespace MesWebAPIBuiltIn
                 else
                     HOST_Auto_Connect.BackColor = Color.LightCoral;
                 Connect_Combo.SelectedIndex = Settings.Default.Combo;
+
+                plc_sv.W400_old = 0;
+                plc_sv.W410_old = 0;
             }
             catch(Exception ex)
             {
@@ -105,7 +113,7 @@ namespace MesWebAPIBuiltIn
             }
             else if (HOST_Connect_Start && PLC_Connect_Start && host_tf)
             {
-                if (plc_sv.W400 == 1) //基板碼校驗
+                if (plc_sv.W400 == 1 && plc_sv.W400_old == 0) //基板碼校驗
                 {
                     request = await MesWebApi(1);
 
@@ -147,7 +155,9 @@ namespace MesWebAPIBuiltIn
                     }
                 }
 
-                if (plc_sv.W410 == 1) // 發送在製品出站
+                plc_sv.W400_old = plc_sv.W400;
+
+                if (plc_sv.W410 == 1 && plc_sv.W410_old == 0) // 發送在製品出站
                 {
                     request = await MesWebApi(2);
 
@@ -188,6 +198,8 @@ namespace MesWebAPIBuiltIn
                         MessageBox.Show("未收到服务器响应");
                     }
                 }
+
+                plc_sv.W410_old = plc_sv.W410;
             }
             else if (HOST_Connect_Start && PLC_Connect_Start && !host_tf)
             {
@@ -244,11 +256,12 @@ namespace MesWebAPIBuiltIn
                 }
 
                 using (HttpClient client = new HttpClient())
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
                 {
                     try
                     {
                         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authorization); //單純 Token 認證方式
-                        HttpResponseMessage testResponse = await client.GetAsync(url);
+                        HttpResponseMessage testResponse = await client.GetAsync(url, cts.Token);
                         //Console.WriteLine("StatusCode" + testResponse.StatusCode.ToString());
 
                         if (testResponse.IsSuccessStatusCode)
@@ -296,6 +309,7 @@ namespace MesWebAPIBuiltIn
                 };
 
                 using (HttpClient client = new HttpClient())
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(8)))
                 {
                     try
                     {
@@ -304,9 +318,9 @@ namespace MesWebAPIBuiltIn
                         string jsonPayload = JsonConvert.SerializeObject(checkPlaCode_Post);
                         HttpContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-                        HttpResponseMessage response = await client.PostAsync(url, content);
-                        string responseContent = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine(responseContent);
+                        HttpResponseMessage response = await client.PostAsync(url, content, cts.Token);
+                        //string responseContent = await response.Content.ReadAsStringAsync();
+                        //Console.WriteLine(responseContent);
 
                         if (response.IsSuccessStatusCode)
                         {
@@ -322,6 +336,7 @@ namespace MesWebAPIBuiltIn
                         MessageBox.Show("错误：" + ex.ToString());
                     }
                 }
+                //post = 3;
             }
             else if (post == 2 && host_tf)  //發送在製品出站
             {
@@ -495,6 +510,7 @@ namespace MesWebAPIBuiltIn
                 };
 
                 using (HttpClient client = new HttpClient())
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(8)))
                 {
                     try
                     {
@@ -503,7 +519,9 @@ namespace MesWebAPIBuiltIn
                         string jsonPayload = JsonConvert.SerializeObject(sendWipOut_Post);
                         HttpContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-                        HttpResponseMessage response = await client.PostAsync(url, content);
+                        HttpResponseMessage response = await client.PostAsync(url, content, cts.Token);
+                        //string responseContent = await response.Content.ReadAsStringAsync();
+                        //Console.WriteLine(responseContent);
 
                         if (response.IsSuccessStatusCode)
                         {
@@ -519,6 +537,7 @@ namespace MesWebAPIBuiltIn
                         MessageBox.Show("错误：" + ex.ToString());
                     }
                 }
+                //post = 3;
             }
 
 
